@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StuntLog — The Stunt Collective</title>
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="StuntLog">
+<meta name="theme-color" content="#e8c84a">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--black:#0a0a0a;--dark:#111;--card:#1a1a1a;--border:#2a2a2a;--accent:#e8c84a;--accent-dim:#e8c84a22;--red:#e84a4a;--green:#4ae88a;--text:#f0f0f0;--muted:#888;--font-d:'Bebas Neue',sans-serif;--font-b:'DM Sans',sans-serif;--font-m:'DM Mono',monospace;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:var(--black);color:var(--text);font-family:var(--font-b);min-height:100vh;padding-bottom:60px;}
+header{background:var(--dark);border-bottom:1px solid var(--border);padding:12px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:var(--font-d);font-size:18px;letter-spacing:2px;line-height:1;color:var(--text);}
+.logo span{color:var(--accent);}
+.logo-sub{font-family:var(--font-m);font-size:9px;color:var(--muted);letter-spacing:2px;}
+.hdr-r{display:flex;align-items:center;gap:8px;}
+.help-btn{background:transparent;border:1px solid var(--border);border-radius:12px;padding:4px 10px;font-family:var(--font-m);font-size:10px;color:var(--muted);cursor:pointer;}
+.nav{display:flex;background:var(--dark);border-bottom:1px solid var(--border);overflow-x:auto;}
+.nav-t{padding:11px 13px;font-size:10px;font-family:var(--font-m);color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;}
+.nav-t.active{color:var(--accent);border-bottom-color:var(--accent);}
+.page{display:none;padding:14px;max-width:600px;margin:0 auto;padding-bottom:40px;}
+.page.active{display:block;}
+.pg-title{font-family:var(--font-d);font-size:28px;letter-spacing:2px;margin-bottom:2px;}
+.pg-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.ct{font-family:var(--font-m);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.ct::after{content:'';flex:1;height:1px;background:var(--border);}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.fr.full{grid-template-columns:1fr;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+label{font-size:10px;font-family:var(--font-m);color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+input,select{background:var(--black);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font-b);font-size:14px;outline:none;width:100%;}
+input:focus,select:focus{border-color:var(--accent);}
+select option{background:var(--dark);}
+.seg{display:flex;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.sb{flex:1;padding:9px 4px;text-align:center;cursor:pointer;font-family:var(--font-m);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--black);border:none;}
+.sb.on{background:var(--accent);color:var(--black);font-weight:700;}
+.tr{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+.tr.last{border-bottom:none;}
+.sw{position:relative;width:44px;height:24px;flex-shrink:0;}
+.sw input{opacity:0;width:0;height:0;}
+.sw-s{position:absolute;inset:0;background:var(--border);border-radius:24px;cursor:pointer;transition:.3s;}
+.sw-s::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:var(--muted);border-radius:50%;transition:.3s;}
+.sw input:checked+.sw-s{background:var(--accent-dim);border:1px solid var(--accent);}
+.sw input:checked+.sw-s::before{transform:translateX(20px);background:var(--accent);}
+.btn{display:block;width:100%;padding:13px;border-radius:8px;border:none;font-family:var(--font-m);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:8px;text-align:center;}
+.btn-a{background:var(--accent);color:var(--black);}
+.btn-del{display:none;width:100%;padding:11px;border-radius:8px;border:1px solid var(--red);background:transparent;color:var(--red);font-family:var(--font-m);font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:8px;}
+.btn-sm{background:transparent;border:1px solid var(--accent);color:var(--accent);font-size:10px;padding:5px 10px;border-radius:6px;font-family:var(--font-m);letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.btn-sm-red{background:transparent;border:1px solid var(--red);color:var(--red);font-size:10px;padding:5px 10px;border-radius:6px;font-family:var(--font-m);letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.ibox{border-radius:8px;padding:9px 12px;font-family:var(--font-m);font-size:11px;margin-top:6px;}
+.ibox-a{background:var(--accent-dim);border:1px solid var(--accent);color:var(--accent);}
+.ibox-r{background:#e84a4a22;border:1px solid var(--red);color:#ff8888;}
+.ibox-g{background:#4ae88a11;border:1px solid #2a5a3a;color:#4ae88a99;}
+.ibox-n{background:#1a1a2a;border:1px solid var(--border);color:var(--muted);}
+.hint{font-size:11px;color:var(--muted);font-family:var(--font-m);margin-top:6px;line-height:1.6;}
+.ot-row{display:flex;justify-content:space-between;align-items:center;padding:7px 11px;background:var(--black);border-radius:6px;margin-bottom:5px;border:1px solid var(--border);}
+.ot-lbl{font-size:11px;color:var(--muted);font-family:var(--font-m);}
+.ot-val{font-size:12px;color:var(--accent);font-family:var(--font-m);font-weight:500;}
+.ot-row.dbl .ot-val{color:var(--red);}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.sr:last-child{border-bottom:none;}
+.sl{color:var(--muted);font-family:var(--font-m);font-size:10px;}
+.sv{font-weight:500;}
+.sv.m{color:var(--green);font-family:var(--font-m);}
+.sv.d{color:var(--red);font-family:var(--font-m);}
+.ec{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;margin-bottom:9px;}
+.eh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;}
+.ed{font-family:var(--font-d);font-size:20px;letter-spacing:1px;}
+.em{font-family:var(--font-m);font-size:10px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px;}
+.chip{background:var(--black);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-family:var(--font-m);font-size:10px;color:var(--muted);}
+.chip b{color:var(--text);font-weight:500;}
+.wk-lbl{background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:var(--font-m);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:inline-block;}
+.wk-lbl b{color:var(--accent);}
+.tot-card{background:linear-gradient(135deg,#1a1a1a,#111);border:1px solid var(--accent);border-radius:12px;padding:16px;margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;}
+.tv{font-family:var(--font-d);font-size:22px;color:var(--accent);}
+.tl{font-family:var(--font-m);font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.ts-out{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;font-family:var(--font-m);font-size:11px;white-space:pre-wrap;line-height:1.8;}
+.pi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.pi.sel{border-color:var(--accent);}
+.pn{font-weight:600;font-size:14px;margin-bottom:2px;}
+.ps{font-size:11px;color:var(--muted);font-family:var(--font-m);}
+.pc{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+.pi.sel .pc{background:var(--accent);border-color:var(--accent);color:var(--black);}
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:10px;display:none;}
+.alert.ok{background:#4ae88a22;border:1px solid var(--green);color:var(--green);display:block;}
+.alert.err{background:#e84a4a22;border:1px solid var(--red);color:var(--red);display:block;}
+.empty{text-align:center;padding:32px 20px;color:var(--muted);}
+.empty .big{font-family:var(--font-d);font-size:40px;color:var(--border);}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.show{display:flex;}
+.modal{background:var(--card);border:1px solid var(--red);border-radius:14px;padding:24px;max-width:300px;width:100%;text-align:center;}
+.modal h3{font-family:var(--font-d);font-size:22px;letter-spacing:1px;color:var(--red);margin-bottom:6px;}
+.modal p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:18px;}
+.modal p strong{color:var(--text);}
+.modal-btns{display:flex;gap:10px;}
+.modal-cancel{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);font-family:var(--font-m);font-size:11px;letter-spacing:1px;cursor:pointer;}
+.modal-ok{flex:1;padding:10px;border-radius:8px;border:none;background:var(--red);color:#fff;font-family:var(--font-m);font-size:11px;letter-spacing:1px;cursor:pointer;font-weight:600;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:9px 16px;font-family:var(--font-m);font-size:11px;letter-spacing:1px;z-index:999;transition:transform .3s;white-space:nowrap;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.ok{border-color:var(--green);color:var(--green);}
+.toast.del{border-color:var(--red);color:var(--red);}
+.wel{position:fixed;inset:0;background:var(--black);z-index:500;overflow-y:auto;padding:24px 16px 48px;}
+.wel-inner{max-width:440px;margin:0 auto;}
+.step{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;}
+.sn{font-family:var(--font-d);font-size:30px;color:var(--accent);line-height:1;flex-shrink:0;width:26px;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- WELCOME -->
+<div class="wel" id="welEl" style="display:none;">
+<div class="wel-inner">
+  <div style="text-align:center;margin-bottom:24px;">
+    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCABIAEgDASIAAhEBAxEB/8QAHAAAAQUBAQEAAAAAAAAAAAAAAAMEBQYHAQII/8QAMhAAAgEDAwMDAgUCBwAAAAAAAQIDAAQRBQYSITFBEyJRYXEHFBUygVJiM0JTgpGhsf/EABgBAQEBAQEAAAAAAAAAAAAAAAABAgME/8QAHxEBAQACAgIDAQAAAAAAAAAAAQACEQMxEiETIjJR/9oADAMBAAIRAxEAPwDFAM16CGuxjJp/Bb8h2pSjihFeSMVPLpjykKiFifAFOn2dqC235mZFt4D2kmYIp+xPeo5B3UF6qtRUtNojRnC3Vs5/tkBphNZzQfvQ4+R1FWkhRRRSRRRRSSsZwwqe01PWdEUZLHAquqcGrjsRYbjcFsLg4hRuch+FHU/9A1nJ0bribdVx1G8sNgaRbAW0V5uK9T1IIZRlLdD2kcec+F84yegrPNTv9R1G5a7v5pL6djkvMckfRR2UD4FL3+qS6/rF5rdycy3kpdR/QnZUH0CgD+Ke6Bora5qJtubpGic5Gjj5t3AAVc9SSQB/J8VvjwA293m5eVyy8Tqgw8zyAYkj/wBoK/zTyyt7q7vVtII/WkmIEca92Pxj4+tbZa7K29pd7FBNbCJ2CwLLJZSSq0zHCqZZAUJJx1VB16ZHaq9oWuz7a1PU9N3Dt6O6kRzAjaZEI4Zpgiv6RVUHIlWySegAPt+evyhQ4Mu+rN9z7SvdCMU00DLBOvOKQKQkijuy564z8+MHsRVYrY/xB3xJr8Isr57G2S3BmWzhRpZmPHGHY4EYwe37j5UdKyS8g/L3Tx+Aeh+R4rk/29JN6KKKkiprb9y0E9yFOGe2lUfcoRULS9nObe6SUeD1HyKmRs1XF07uw3skEIRePEdQT4r6F/BfbrR6Wmr3cTQ3LkvxYFSQchMg9QOPJgPPMHwKz/Yu3rGBYNUltlv55ZZvy8STL6irEgc8EYYL4I9xPTICjkci97o3ZrenWFl+lxDQbBJ+NwokjluZXJGVHJSoIOQWY5yG7466FfRYcccXyax3seo6BHdXV8t/PY2YkmM0t2hhKK5lTALc1YYVAPPTrisY3fubVXsrz9TkI1DUZ5fThICtbWxK8iw7hnCogz1CRn+qrVqsW69Tv5ov1S2juvWhjf1b4yMzPn0lQemEUe1j7QM4zk9KoDbB12+t5NWj/LPayZnedp/2oQ7GRzjthM5/uX5quOjcxz8nQVRVzF7lwMA+Kmtx2jW1xbhhhjbQlvuUU0/s9jXlxu/T9Ae5tJnuAss7W0hcQwkByzEgY9hz/IpxvqWO83DdywriLmQg+FHQD/gCua/YLoflqbRXWGDRWrNyiiikrvoW49Et9Hs7G/F4xSOZJQOXH3uCyji65RlVQRgEMASSPbUrNuvSGvbeS+vtZuLSG5E6JJHyP+Gf84bv6pLk/XoBWZ0rFcywn2OR9KT0+m0S4/EDSprpZmW+frDKGLurxyocEgiTHReQXAAHLscHLlNRn3hp17baFa6tJfXCiNp55mEEaOqCYM/Liq+wKAc9EHzgUC31mWBgwhtyw8tChP8A5Um+8NUuIhDJdSekOyA4UfYDpUycmuOOJaMZrHZ2mXkcd/8Aqm4NQAF/qJ7Y/wBNPPHoOvnH2AzXUX9V2YnJJyaSOotJ1ZiSfJptNccx3rIa9tVmEowxookOTRW7MlRRRSRRRRSRXQcUUUl6DkV3mTRRSXknNFFFJf/Z" style="width:64px;height:64px;border-radius:50%;object-fit:cover;margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;">
+    <div style="font-family:var(--font-d);font-size:36px;letter-spacing:4px;">STUNT<span style="color:var(--accent);">LOG</span></div>
+    <div style="font-family:var(--font-m);font-size:10px;color:var(--muted);letter-spacing:3px;margin-top:2px;">THE STUNT COLLECTIVE</div>
+  </div>
+  <div class="step"><div class="sn">1</div><div><div style="font-weight:600;font-size:13px;margin-bottom:2px;">Set Up Your Profile</div><div style="font-size:12px;color:var(--muted);line-height:1.6;">Go to <strong style="color:var(--text);">⚙️ Settings</strong> — enter your name and SAGA/union number.</div></div></div>
+  <div class="step"><div class="sn">2</div><div><div style="font-weight:600;font-size:13px;margin-bottom:2px;">Create a Project</div><div style="font-size:12px;color:var(--muted);line-height:1.6;">Go to <strong style="color:var(--text);">🎬 Projects</strong> — add the show title, company, start date, person in charge, and your <strong style="color:var(--text);">default day rate</strong>.</div></div></div>
+  <div class="step"><div class="sn">3</div><div><div style="font-weight:600;font-size:13px;margin-bottom:2px;">Log Your Days</div><div style="font-size:12px;color:var(--muted);line-height:1.6;">Go to <strong style="color:var(--text);">📋 Log Day</strong> — select project, day type, call/wrap times. OT auto-calculates. Add travel, stunt adj, hire, SASA.</div></div></div>
+  <div class="step"><div class="sn">4</div><div><div style="font-weight:600;font-size:13px;margin-bottom:2px;">Review &amp; Edit</div><div style="font-size:12px;color:var(--muted);line-height:1.6;">Go to <strong style="color:var(--text);">📁 Entries</strong> — all days grouped by shoot week. Edit or delete any entry.</div></div></div>
+  <div class="step"><div class="sn">5</div><div><div style="font-weight:600;font-size:13px;margin-bottom:2px;">Generate Timesheets</div><div style="font-size:12px;color:var(--muted);line-height:1.6;">Go to <strong style="color:var(--text);">📄 Timesheet</strong> — select project and week, generate and copy.</div></div></div>
+  <div style="background:var(--accent-dim);border:1px solid var(--accent);border-radius:10px;padding:12px;margin:16px 0;font-size:12px;color:var(--text);line-height:1.9;">
+    • OT auto-calculates from call &amp; wrap times<br>
+    • Set day rate in Projects — auto-fills each day<br>
+    • Turnaround auto-checks from previous entry<br>
+    • Night shoots? Use the Overnight toggle<br>
+    • Data saves automatically on your device
+  </div>
+  <button onclick="dismissWel()" class="btn btn-a" style="font-family:var(--font-d);font-size:18px;letter-spacing:2px;padding:14px;">LET'S GO →</button>
+  <div style="text-align:center;margin-top:12px;"><span onclick="dismissWel();showPage('settings');" style="font-family:var(--font-m);font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline;letter-spacing:1px;">SKIP — GO TO SETTINGS FIRST</span></div>
+</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div style="font-size:28px;margin-bottom:8px;">⚠️</div>
+    <h3 id="modalTitle"></h3>
+    <p id="modalMsg"></p>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-ok" id="modalOk">Delete</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<header>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCABIAEgDASIAAhEBAxEB/8QAHAAAAQUBAQEAAAAAAAAAAAAAAAMEBQYHAQII/8QAMhAAAgEDAwMDAgUCBwAAAAAAAQIDAAQRBQYSITFBEyJRYXEHFBUygVJiM0JTgpGhsf/EABgBAQEBAQEAAAAAAAAAAAAAAAABAgME/8QAHxEBAQACAgIDAQAAAAAAAAAAAQACEQMxEiETIjJR/9oADAMBAAIRAxEAPwDFAM16CGuxjJp/Bb8h2pSjihFeSMVPLpjykKiFifAFOn2dqC235mZFt4D2kmYIp+xPeo5B3UF6qtRUtNojRnC3Vs5/tkBphNZzQfvQ4+R1FWkhRRRSRRRRSSsZwwqe01PWdEUZLHAquqcGrjsRYbjcFsLg4hRuch+FHU/9A1nJ0bribdVx1G8sNgaRbAW0V5uK9T1IIZRlLdD2kcec+F84yegrPNTv9R1G5a7v5pL6djkvMckfRR2UD4FL3+qS6/rF5rdycy3kpdR/QnZUH0CgD+Ke6Bora5qJtubpGic5Gjj5t3AAVc9SSQB/J8VvjwA293m5eVyy8Tqgw8zyAYkj/wBoK/zTyyt7q7vVtII/WkmIEca92Pxj4+tbZa7K29pd7FBNbCJ2CwLLJZSSq0zHCqZZAUJJx1VB16ZHaq9oWuz7a1PU9N3Dt6O6kRzAjaZEI4Zpgiv6RVUHIlWySegAPt+evyhQ4Mu+rN9z7SvdCMU00DLBOvOKQKQkijuy564z8+MHsRVYrY/xB3xJr8Isr57G2S3BmWzhRpZmPHGHY4EYwe37j5UdKyS8g/L3Tx+Aeh+R4rk/29JN6KKKkiprb9y0E9yFOGe2lUfcoRULS9nObe6SUeD1HyKmRs1XF07uw3skEIRePEdQT4r6F/BfbrR6Wmr3cTQ3LkvxYFSQchMg9QOPJgPPMHwKz/Yu3rGBYNUltlv55ZZvy8STL6irEgc8EYYL4I9xPTICjkci97o3ZrenWFl+lxDQbBJ+NwokjluZXJGVHJSoIOQWY5yG7466FfRYcccXyax3seo6BHdXV8t/PY2YkmM0t2hhKK5lTALc1YYVAPPTrisY3fubVXsrz9TkI1DUZ5fThICtbWxK8iw7hnCogz1CRn+qrVqsW69Tv5ov1S2juvWhjf1b4yMzPn0lQemEUe1j7QM4zk9KoDbB12+t5NWj/LPayZnedp/2oQ7GRzjthM5/uX5quOjcxz8nQVRVzF7lwMA+Kmtx2jW1xbhhhjbQlvuUU0/s9jXlxu/T9Ae5tJnuAss7W0hcQwkByzEgY9hz/IpxvqWO83DdywriLmQg+FHQD/gCua/YLoflqbRXWGDRWrNyiiikrvoW49Et9Hs7G/F4xSOZJQOXH3uCyji65RlVQRgEMASSPbUrNuvSGvbeS+vtZuLSG5E6JJHyP+Gf84bv6pLk/XoBWZ0rFcywn2OR9KT0+m0S4/EDSprpZmW+frDKGLurxyocEgiTHReQXAAHLscHLlNRn3hp17baFa6tJfXCiNp55mEEaOqCYM/Liq+wKAc9EHzgUC31mWBgwhtyw8tChP8A5Um+8NUuIhDJdSekOyA4UfYDpUycmuOOJaMZrHZ2mXkcd/8Aqm4NQAF/qJ7Y/wBNPPHoOvnH2AzXUX9V2YnJJyaSOotJ1ZiSfJptNccx3rIa9tVmEowxookOTRW7MlRRRSRRRRSRXQcUUUl6DkV3mTRRSXknNFFFJf/Z" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
+    <div><div class="logo">THE STUNT<span> COLLECTIVE</span></div><div class="logo-sub">STUNTLOG</div></div>
+  </div>
+  <div class="hdr-r">
+    <button class="help-btn" onclick="showWel()">? HELP</button>
+    <div style="font-size:10px;color:var(--muted);font-family:var(--font-m);text-align:right;line-height:1.4;" id="hdrProj"><strong style="display:block;color:var(--text);font-size:11px;">No project</strong>tap Projects</div>
+  </div>
+</header>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-t" onclick="showPage('settings')">⚙️ Settings</div>
+  <div class="nav-t" onclick="showPage('projects')">🎬 Projects</div>
+  <div class="nav-t active" onclick="showPage('log')">📋 Log Day</div>
+  <div class="nav-t" onclick="showPage('entries')">📁 Entries</div>
+  <div class="nav-t" onclick="showPage('timesheet')">📄 Timesheet</div>
+</div>
+
+<!-- LOG DAY -->
+<div id="page-log" class="page active">
+  <div style="margin-top:12px;">
+    <div class="pg-title">LOG DAY</div>
+    <div class="pg-sub">Record your work session</div>
+    <div id="logAlert" class="alert"></div>
+
+    <!-- Project -->
+    <div style="margin-bottom:12px;">
+      <div class="ct">Project</div>
+      <select id="logProj" onchange="onProjChange()" style="font-size:14px;padding:10px 12px;">
+        <option value="">— Select a project —</option>
+      </select>
+      <div id="projInfo" class="ibox ibox-a" style="display:none;"></div>
+    </div>
+
+    <!-- Day Type -->
+    <div class="card">
+      <div class="ct">Day Type</div>
+      <div class="seg">
+        <button class="sb on" id="dt-shoot" onclick="setDT('shoot')">🎬 Shoot</button>
+        <button class="sb" id="dt-rehearsal" onclick="setDT('rehearsal')">🤸 Rehearsal</button>
+        <button class="sb" id="dt-preprod" onclick="setDT('preprod')">📋 Pre-Prod</button>
+        <button class="sb" id="dt-travel" onclick="setDT('travel')">✈️ Travel</button>
+      </div>
+    </div>
+
+    <!-- Production Type -->
+    <div class="card">
+      <div class="ct">Production Type</div>
+      <div class="seg">
+        <button class="sb on" id="pt-feature" onclick="setPT('feature')">🎬 Feature (12hr)</button>
+        <button class="sb" id="pt-commercial" onclick="setPT('commercial')">📺 Commercial (10hr)</button>
+        <button class="sb" id="pt-custom" onclick="setPT('custom')">⚙️ Custom</button>
+      </div>
+      <div id="sec-custom" style="display:none;margin-top:10px;">
+        <div class="fr">
+          <div class="fg"><label>Standard Hrs</label><input type="number" id="custHrs" placeholder="e.g. 11" step="0.25" min="1" max="24" oninput="calc()" onchange="calc()"></div>
+          <div class="fg"><label>Incl. Travel Hrs</label><input type="number" id="custTrav" placeholder="e.g. 2" step="0.25" min="0" max="12" oninput="calc()" onchange="calc()"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Date & Times -->
+    <div class="card">
+      <div class="ct">Date &amp; Times</div>
+      <div class="fr">
+        <div class="fg"><label>Date</label><input type="date" id="logDate" onchange="onDateChange()"></div>
+        <div class="fg" id="callGrp"><label>Call Time</label><input type="time" id="callTime" oninput="calc()" onchange="calc()"></div>
+      </div>
+      <div id="wrapGrp" style="margin-bottom:10px;">
+        <div class="fg"><label>Wrap Time</label><input type="time" id="wrapTime" oninput="calc()" onchange="calc()"></div>
+      </div>
+      <div class="tr last" id="overnightRow">
+        <div><div class="tgl-label" style="font-size:13px;">Overnight / Night Shoot</div><div style="font-size:11px;color:var(--muted);font-family:var(--font-m);">Wrap falls on the following day</div></div>
+        <label class="sw"><input type="checkbox" id="overnight" onchange="calc()"><span class="sw-s"></span></label>
+      </div>
+      <div id="hoursInd" style="display:none;margin-top:8px;border-radius:6px;padding:7px 10px;font-family:var(--font-m);font-size:11px;"></div>
+    </div>
+
+    <!-- Rate Info (read-only, from project) -->
+    <div id="rateInfo" class="ibox ibox-a" style="display:none;margin-bottom:12px;"></div>
+    <input type="hidden" id="dayRate">
+
+    <!-- Half Day Toggle -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="tr last">
+        <div>
+          <div style="font-size:14px;">Half Day Rate</div>
+          <div style="font-size:11px;color:var(--muted);font-family:var(--font-m);">Charge at 50% of day rate</div>
+        </div>
+        <label class="sw"><input type="checkbox" id="halfDay" onchange="runCalc()"><span class="sw-s"></span></label>
+      </div>
+    </div>
+
+    <!-- Travel -->
+    <div id="sec-travel" class="card">
+      <div class="ct">Travel</div>
+      <div class="tr">
+        <div><div style="font-size:14px;">Travel To Set</div><div style="font-size:11px;color:var(--muted);font-family:var(--font-m);">Time to location</div></div>
+        <label class="sw"><input type="checkbox" id="travToTog" onchange="tog('travToSec','travToTog');calc()"><span class="sw-s"></span></label>
+      </div>
+      <div id="travToSec" style="display:none;margin-bottom:10px;">
+        <div class="fg"><label>Duration</label><select id="travTo" onchange="calc()"><option value="0">Select</option></select></div>
+      </div>
+      <div class="tr last">
+        <div><div style="font-size:14px;">Travel Home</div><div style="font-size:11px;color:var(--muted);font-family:var(--font-m);">Time travelling home</div></div>
+        <label class="sw"><input type="checkbox" id="travFrTog" onchange="tog('travFrSec','travFrTog');calc()"><span class="sw-s"></span></label>
+      </div>
+      <div id="travFrSec" style="display:none;margin-top:8px;">
+        <div class="fg"><label>Duration</label><select id="travFr" onchange="calc()"><option value="0">Select</option></select></div>
+      </div>
+    </div>
+
+    <!-- Overtime -->
+    <div id="sec-ot" class="card">
+      <div class="ct">Overtime</div>
+      <div class="fg" style="margin-bottom:10px;"><label>Overtime Hours</label><select id="otHrs" onchange="calc()"><option value="0">No overtime</option></select></div>
+      <div id="otBreak"></div>
+    </div>
+
+    <!-- Stunt Adjustments -->
+    <div id="sec-stunt" class="card">
+      <div class="ct">Stunt Adjustments</div>
+      <div class="fg"><label>Total Stunt Adj (R)</label><input type="number" id="stuntAdj" placeholder="Amount confirmed today" step="0.01" oninput="calc()" onchange="calc()"></div>
+    </div>
+
+    <!-- Vehicle / Equipment Hire -->
+    <div id="sec-hire" class="card">
+      <div class="ct">Vehicle / Equipment Hire</div>
+      <div id="hireList"></div>
+      <button onclick="addHire()" style="background:transparent;border:1px dashed var(--border);color:var(--muted);border-radius:8px;padding:8px;font-family:var(--font-m);font-size:11px;letter-spacing:1px;cursor:pointer;width:100%;margin-top:4px;">+ Add Item</button>
+    </div>
+
+    <!-- Turnaround -->
+    <div id="sec-turn" class="card">
+      <div class="ct">Turnaround</div>
+      <div class="hint" style="margin-bottom:10px;">Minimum 10hrs required between wrap and call. Shortfall paid at 1.5× hourly rate.</div>
+      <div class="fg" style="margin-bottom:10px;">
+        <label>Previous Day Wrap Time</label>
+        <input type="time" id="prevWrap" oninput="calc()" onchange="calc()">
+      </div>
+      <div id="turnInfo" style="display:none;border-radius:8px;padding:9px 12px;font-family:var(--font-m);font-size:11px;"></div>
+    </div>
+
+    <!-- SASA -->
+    <div class="card">
+      <div class="ct">SASA Levy</div>
+      <div class="tr last">
+        <div><div style="font-size:14px;">SASA Contribution</div><div style="font-size:11px;color:var(--muted);font-family:var(--font-m);">Deducted from day total</div></div>
+        <label class="sw"><input type="checkbox" id="sasaTog" onchange="tog('sasaSec','sasaTog');calc()"><span class="sw-s"></span></label>
+      </div>
+      <div id="sasaSec" style="display:none;margin-top:10px;">
+        <div class="fg"><label>SASA Amount (R)</label><input type="number" id="sasaAmt" value="50" step="0.01" oninput="calc()" onchange="calc()"></div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="card">
+      <div class="ct">Notes</div>
+      <div class="fg"><input type="text" id="logNotes" placeholder="e.g. Car hit, wire work, fire gag..."></div>
+    </div>
+
+    <!-- Summary -->
+    <div class="card">
+      <div class="ct">Day Summary</div>
+      <div class="sr"><span class="sl">Day Type</span><span class="sv" id="sumType">Shoot Day</span></div>
+      <div class="sr"><span class="sl">Production</span><span class="sv" id="sumProd">Feature (12hr)</span></div>
+      <div class="sr" id="srHr"><span class="sl">Hourly Rate</span><span class="sv m" id="sumHr">—</span></div>
+      <div class="sr" id="srWork"><span class="sl">Work Hours</span><span class="sv" id="sumWork">—</span></div>
+      <div class="sr" id="srTrav"><span class="sl">Travel Hours</span><span class="sv" id="sumTrav">—</span></div>
+      <div class="sr"><span class="sl">Day Rate</span><span class="sv m" id="sumRate">—</span></div>
+      <div class="sr" id="srTPay"><span class="sl">Travel Pay</span><span class="sv m" id="sumTPay">—</span></div>
+      <div class="sr" id="srOT"><span class="sl">Overtime Pay</span><span class="sv m" id="sumOT">—</span></div>
+      <div class="sr" id="srSA"><span class="sl">Stunt Adj</span><span class="sv m" id="sumSA">—</span></div>
+      <div class="sr" id="srHire" style="display:none;"><span class="sl">Hire</span><span class="sv m" id="sumHire">—</span></div>
+      <div class="sr" id="srTurn" style="display:none;"><span class="sl">Turnaround</span><span class="sv m" id="sumTurn">—</span></div>
+      <div class="sr" id="srSasa" style="display:none;"><span class="sl">SASA Levy</span><span class="sv d" id="sumSasa">—</span></div>
+      <div class="sr" id="srGross" style="display:none;"><span class="sl">Gross</span><span class="sv m" id="sumGross">—</span></div>
+      <div style="height:1px;background:var(--accent);margin:8px 0;opacity:.4;"></div>
+      <div class="sr"><span class="sl" style="color:var(--text);font-size:12px;">TOTAL</span><span class="sv m" style="font-size:20px;" id="sumTotal">—</span></div>
+    </div>
+
+    <button class="btn btn-a" id="saveBtn" onclick="saveEntry()">✓ Save Day Entry</button>
+    <button class="btn-del" id="delBtn" onclick="delCurrent()">🗑 Delete This Entry</button>
+  </div>
+</div>
+
+<!-- ENTRIES -->
+<div id="page-entries" class="page">
+  <div style="margin-top:4px;">
+    <div class="pg-title">ENTRIES</div>
+    <div class="pg-sub">Tap Edit to modify any entry</div>
+    <div class="fr">
+      <div class="fg"><label>Project</label><select id="fProj" onchange="renderEntries()"><option value="all">All Projects</option></select></div>
+      <div class="fg"><label>Shoot Week</label><select id="fWeek" onchange="renderEntries()"><option value="all">All Weeks</option></select></div>
+    </div>
+    <div id="entriesList"></div>
+  </div>
+</div>
+
+<!-- TIMESHEET -->
+<div id="page-timesheet" class="page">
+  <div style="margin-top:4px;">
+    <div class="pg-title">TIMESHEET</div>
+    <div class="pg-sub">Generate weekly reports</div>
+    <div class="card">
+      <div class="ct">Generate</div>
+      <div class="fr">
+        <div class="fg"><label>Project</label><select id="tsProj" onchange="populateWeeks()"><option value="all">All Projects</option></select></div>
+        <div class="fg"><label>Shoot Week</label><select id="tsWeek"><option value="all">All Weeks</option></select></div>
+      </div>
+      <button class="btn btn-a" onclick="genTS()">Generate Timesheet</button>
+    </div>
+    <div id="tsOut" style="display:none;">
+      <div id="tsTots" class="tot-card"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-family:var(--font-m);font-size:10px;color:var(--muted);letter-spacing:1px;">TIMESHEET EXPORT</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-sm" onclick="emailTS()">&#11014;&#65039; Share</button>
+          <button class="btn-sm" onclick="copyTS()">⎘ Copy</button>
+        </div>
+      </div>
+      <div class="ts-out" id="tsText"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROJECTS -->
+<div id="page-projects" class="page">
+  <div style="margin-top:4px;">
+    <div class="pg-title">PROJECTS</div>
+    <div class="pg-sub">Manage your productions</div>
+    <div class="card">
+      <div class="ct">New Project</div>
+      <div class="fr full" style="margin-bottom:8px;"><div class="fg"><label>Film / Show Title</label><input type="text" id="pTitle" placeholder="e.g. Moonlighting"></div></div>
+      <div class="fr full" style="margin-bottom:8px;"><div class="fg"><label>Production Company</label><input type="text" id="pCompany" placeholder="e.g. Voodoo Films"></div></div>
+      <div class="fr full" style="margin-bottom:8px;"><div class="fg"><label>Shoot Start Date</label><input type="date" id="pStart"></div></div>
+      <div class="fr full" style="margin-bottom:8px;"><div class="fg"><label>Person in Charge</label><input type="text" id="pPIC" placeholder="Name of coordinator / AD"></div></div>
+      <div class="fr full" style="margin-bottom:8px;"><div class="fg"><label>Email Address</label><input type="email" id="pEmail" placeholder="e.g. production@studio.com"></div></div>
+      <div class="fr full" style="margin-bottom:8px;"><div class="fg"><label>Default Day Rate (R)</label><input type="number" id="pRate" placeholder="e.g. 12000" step="0.01"></div></div>
+      <button class="btn btn-a" onclick="addProject()">+ Add Project</button>
+    </div>
+    <div id="projList"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="page-settings" class="page">
+  <div style="margin-top:4px;">
+    <div class="pg-title">SETTINGS</div>
+    <div class="pg-sub">Your profile</div>
+    <div class="card">
+      <div class="ct">Your Info</div>
+      <div class="fr full" style="margin-bottom:8px;"><div class="fg"><label>Full Name</label><input type="text" id="sName" placeholder="Your name"></div></div>
+      <div class="fr full"><div class="fg"><label>Union / Guild #</label><input type="text" id="sUnion" placeholder="e.g. SAGA #12345"></div></div>
+      <button class="btn btn-a" onclick="saveSettings()">Save Settings</button>
+    </div>
+    <div class="card">
+      <div class="ct">Backup &amp; Restore Data</div>
+      <div style="background:#e84a4a22;border:1px solid var(--red);border-radius:8px;padding:10px 12px;font-family:var(--font-m);font-size:11px;color:#ff8888;margin-bottom:12px;">
+        ⚠️ If you delete this app from your home screen, ALL your data will be lost. Export a backup first.
+      </div>
+      <div class="hint" style="margin-bottom:10px;">Export saves all your projects and entries as a file. Import restores them.</div>
+      <button class="btn btn-a" onclick="exportData()" style="margin-bottom:8px;">📤 Export Data Backup</button>
+      <label style="display:block;width:100%;padding:13px;border-radius:8px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-family:var(--font-m);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;text-align:center;margin-top:4px;">
+        📥 Import Data Backup
+        <input type="file" id="importFile" accept=".json" onchange="importData(this)" style="display:none;">
+      </label>
+    </div>
+    <div class="card">
+      <div class="ct">Download App</div>
+      <div class="hint" style="margin-bottom:10px;">Download and share via WhatsApp, email or AirDrop. Opens in any browser.</div>
+      <button class="btn btn-a" onclick="exportApp()">⬇ Download App File</button>
+    </div>
+    <div class="card">
+      <div class="ct">Danger Zone</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
+        <div><div style="font-size:14px;margin-bottom:2px;">Clear All Data</div><div style="font-size:11px;color:var(--muted);font-family:var(--font-m);">Removes all entries and projects</div></div>
+        <button class="btn-sm-red" onclick="confirmClear()">Clear All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// STUNTLOG — THE STUNT COLLECTIVE
+// Complete JS — clean rebuild
+// ═══════════════════════════════════════════
+
+// ── STATE ──────────────────────────────────
+var S = { projects:[], entries:[], settings:{name:'',union:''} };
+var dayType = 'shoot';
+var prodType = 'feature';
+var editId   = null;
+var hires    = [];
+var modalCb  = null;
+var toastTimer = null;
+
+// ── STORAGE ────────────────────────────────
+function persist() {
+  try { localStorage.setItem('stuntlog_v4', JSON.stringify(S)); } catch(e){}
+}
+function loadData() {
+  try {
+    var d = localStorage.getItem('stuntlog_v4');
+    if (d) {
+      var parsed = JSON.parse(d);
+      if (parsed.projects) S.projects = parsed.projects;
+      if (parsed.entries)  S.entries  = parsed.entries;
+      if (parsed.settings) S.settings = parsed.settings;
+    }
+  } catch(e){}
+}
+
+// ── UTILS ──────────────────────────────────
+function fmtH(h) {
+  if (!h || h <= 0) return '0min';
+  var hr = Math.floor(h);
+  var mn = Math.round((h - hr) * 60);
+  if (hr > 0 && mn > 0) return hr + 'h ' + mn + 'min';
+  if (hr > 0) return hr + 'hr' + (hr > 1 ? 's' : '');
+  return mn + 'min';
+}
+
+// Time difference in hours — handles overnight automatically
+// If wrap < call, assumes overnight wrap
+function timeDiff(callStr, wrapStr, forceOvernight) {
+  if (!callStr || !wrapStr) return 0;
+  var c = callStr.split(':').map(Number);
+  var w = wrapStr.split(':').map(Number);
+  var cMin = c[0]*60 + c[1];
+  var wMin = w[0]*60 + w[1];
+  var diff = wMin - cMin;
+  var overnight = forceOvernight;
+  if (!overnight) {
+    var el = document.getElementById('overnight');
+    overnight = el ? el.checked : false;
+  }
+  if (diff < 0 || (overnight && diff <= 0)) diff += 1440;
+  return diff / 60;
+}
+
+// Gap between previous day wrap and today call (always prev->next logic)
+function turnaroundGap(prevWrap, callStr) {
+  if (!prevWrap || !callStr) return null;
+  var p = prevWrap.split(':').map(Number);
+  var c = callStr.split(':').map(Number);
+  var pMin = p[0]*60 + p[1];
+  var cMin = c[0]*60 + c[1];
+  // If wrap is after call (e.g. wrap 22:00, call 06:00) = overnight crossing
+  // If wrap is before call (e.g. wrap 06:00, call 14:00) = same calendar day gap
+  var gap;
+  if (pMin > cMin) {
+    gap = (cMin + 1440 - pMin) / 60; // overnight
+  } else {
+    gap = (cMin - pMin) / 60; // same day
+  }
+  return gap;
+}
+
+function getDayHrs() {
+  if (prodType === 'commercial') return 10;
+  if (prodType === 'custom') {
+    var el = document.getElementById('custHrs');
+    return el ? (parseFloat(el.value) || 12) : 12;
+  }
+  return 12;
+}
+
+function getInclTrav() {
+  if (prodType === 'custom') {
+    var el = document.getElementById('custTrav');
+    return el ? (parseFloat(el.value) || 0) : 0;
+  }
+  return 0;
+}
+
+function totalHire() {
+  return hires.reduce(function(s,h){ return s + (parseFloat(h.amt)||0); }, 0);
+}
+
+function makeOpts(maxHrs) {
+  var html = '';
+  for (var m = 15; m <= maxHrs * 60; m += 15) {
+    var h = Math.floor(m/60), r = m%60;
+    var lbl = (h>0&&r>0) ? h+'h '+r+'min' : h>0 ? h+' hour'+(h>1?'s':'') : r+' min';
+    html += '<option value="'+(m/60)+'">'+lbl+'</option>';
+  }
+  return html;
+}
+
+function tog(secId, togId) {
+  var sec = document.getElementById(secId);
+  var tog = document.getElementById(togId);
+  if (sec && tog) sec.style.display = tog.checked ? 'block' : 'none';
+}
+
+function wkMonday(dateStr) {
+  var d = new Date(dateStr + 'T12:00:00');
+  var day = d.getDay();
+  var diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().split('T')[0];
+}
+
+function shootWeekNum(dateStr, projId) {
+  var proj = S.projects.find(function(p){ return p.id === projId; });
+  if (!proj || !proj.startDate) return null;
+  var ms = new Date(wkMonday(dateStr)) - new Date(wkMonday(proj.startDate));
+  var w = Math.floor(ms / (7 * 24 * 3600 * 1000));
+  return w >= 0 ? w + 1 : null;
+}
+
+// ── MODAL ──────────────────────────────────
+function showConfirm(title, msg, label, cb) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalMsg').innerHTML = msg;
+  document.getElementById('modalOk').textContent = label || 'Delete';
+  modalCb = cb;
+  document.getElementById('modalBg').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modalBg').classList.remove('show');
+  modalCb = null;
+}
+document.getElementById('modalOk').onclick = function() {
+  var cb = modalCb; closeModal(); if (cb) cb();
+};
+document.getElementById('modalBg').onclick = function(e) {
+  if (e.target === this) closeModal();
+};
+
+// ── TOAST ──────────────────────────────────
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || 'ok') + ' show';
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2800);
+}
+
+// ── WELCOME ────────────────────────────────
+function showWel() { document.getElementById('welEl').style.display = 'block'; }
+function dismissWel() {
+  document.getElementById('welEl').style.display = 'none';
+  try { localStorage.setItem('stuntlog_welcomed','1'); } catch(e){}
+}
+
+// ── NAV ────────────────────────────────────
+function showPage(name) {
+  document.getElementById('welEl').style.display = 'none';
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-t').forEach(function(t){ t.classList.remove('active'); });
+  var page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
+  var tabs = ['settings','projects','log','entries','timesheet'];
+  var idx = tabs.indexOf(name);
+  var navTabs = document.querySelectorAll('.nav-t');
+  if (idx >= 0 && navTabs[idx]) navTabs[idx].classList.add('active');
+  if (name === 'entries')   renderEntries();
+  if (name === 'projects')  renderProjects();
+  if (name === 'timesheet') populateWeeks();
+}
+
+// ── HIRE ITEMS ─────────────────────────────
+function addHire() {
+  hires.push({ id: Date.now().toString(), desc:'', amt:0 });
+  renderHires();
+}
+function removeHire(id) {
+  hires = hires.filter(function(h){ return h.id !== id; });
+  renderHires();
+  runCalc();
+}
+function renderHires() {
+  var el = document.getElementById('hireList');
+  if (!el) return;
+  if (!hires.length) { el.innerHTML = ''; return; }
+  var html = '';
+  hires.forEach(function(h) {
+    html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;" data-hire-id="' + h.id + '">'
+      + '<input type="text" placeholder="Description (e.g. Vehicle hire)" value="' + (h.desc||'').replace(/"/g,'&quot;') + '" '
+      + 'data-field="desc" oninput="updateHireField(this)" style="flex:2;">'
+      + '<input type="number" placeholder="R" value="' + (h.amt||'') + '" step="0.01" '
+      + 'data-field="amt" oninput="updateHireField(this)" onchange="updateHireField(this)" style="flex:1;">'
+      + '<button type="button" data-hid="' + h.id + '" onclick="removeHire(this.getAttribute(\'data-hid\'))" '
+      + 'style="background:transparent;border:1px solid var(--red);color:var(--red);border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer;flex-shrink:0;">✕</button>'
+      + '</div>';
+  });
+  el.innerHTML = html;
+}
+function updateHireField(el) {
+  var row = el.closest('[data-hire-id]');
+  if (!row) return;
+  var id = row.getAttribute('data-hire-id');
+  var field = el.getAttribute('data-field');
+  var h = hires.find(function(x){ return x.id === id; });
+  if (h) {
+    h[field] = field === 'amt' ? (parseFloat(el.value)||0) : el.value;
+    if (field === 'amt') runCalc();
+  }
+}
+function resetHires() { hires = []; renderHires(); }
+
+// ── DAY TYPE ───────────────────────────────
+function setDT(t) {
+  dayType = t;
+  ['shoot','rehearsal','preprod','travel'].forEach(function(x) {
+    var el = document.getElementById('dt-' + x);
+    if (el) el.classList.toggle('on', x === t);
+  });
+  var isSR = t === 'shoot' || t === 'rehearsal';
+  var isS  = t === 'shoot';
+  var show = function(id, vis) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = vis ? (id==='overnightRow'?'flex':'block') : 'none';
+  };
+  show('callGrp',     isSR);
+  show('wrapGrp',     isSR);
+  show('overnightRow',isSR);
+  show('sec-travel',  isSR);
+  show('sec-ot',      isSR);
+  show('sec-stunt',   isS);
+  show('sec-hire',    isSR);
+  show('sec-turn',    isSR);
+  var dtLabels = {shoot:'Shoot Day',rehearsal:'Rehearsal Day',preprod:'Pre-Production Day',travel:'Travel Day'};
+  var el = document.getElementById('sumType');
+  if (el) el.textContent = dtLabels[t] || 'Shoot Day';
+  var showEl = function(id, vis){ var e=document.getElementById(id); if(e) e.style.display=vis?'':'none'; };
+  showEl('srWork', isSR);
+  showEl('srTrav', isSR);
+  showEl('srTPay', isSR);
+  showEl('srOT',   isSR);
+  showEl('srSA',   isS);
+  runCalc();
+}
+
+// ── PROD TYPE ──────────────────────────────
+function setPT(t) {
+  prodType = t;
+  ['feature','commercial','custom'].forEach(function(x) {
+    var el = document.getElementById('pt-' + x);
+    if (el) el.classList.toggle('on', x === t);
+  });
+  var sc = document.getElementById('sec-custom');
+  if (sc) sc.style.display = t === 'custom' ? 'block' : 'none';
+  runCalc();
+}
+
+// ── MAIN CALCULATION ───────────────────────
+function runCalc() {
+  var isSR = dayType === 'shoot' || dayType === 'rehearsal';
+  var isS  = dayType === 'shoot';
+  var call = document.getElementById('callTime') ? document.getElementById('callTime').value : '';
+  var wrap = document.getElementById('wrapTime') ? document.getElementById('wrapTime').value : '';
+  var dh   = getDayHrs();
+  var rate = parseFloat(document.getElementById('dayRate') ? document.getElementById('dayRate').value : '0') || 0;
+  var halfDayEl = document.getElementById('halfDay');
+  var halfDay = halfDayEl ? halfDayEl.checked : false;
+  var billedRate = halfDay ? rate * 0.5 : rate; // what gets billed
+  var hr   = rate > 0 ? rate / dh : 0; // hourly always from full rate
+
+  // ── OVERTIME ──
+  var otH = 0;
+  var worked = 0;
+  if (isSR && call && wrap) {
+    worked = timeDiff(call, wrap);
+    var rawOT = worked - dh;
+    if (rawOT > 0) {
+      otH = Math.round(rawOT * 4) / 4; // snap to nearest 15min
+    }
+    // Update the OT dropdown to reflect auto-calculated value
+    var otSel = document.getElementById('otHrs');
+    if (otSel) {
+      if (otH <= 0) {
+        otSel.value = '0';
+      } else {
+        var bestIdx = 0, bestDiff = 9999;
+        for (var i = 0; i < otSel.options.length; i++) {
+          var diff = Math.abs(parseFloat(otSel.options[i].value) - otH);
+          if (diff < bestDiff) { bestDiff = diff; bestIdx = i; }
+        }
+        otSel.selectedIndex = bestIdx;
+      }
+    }
+    // Hours indicator
+    var ind = document.getElementById('hoursInd');
+    if (ind) {
+      ind.style.display = 'block';
+      if (otH > 0) {
+        ind.className = 'ibox ibox-r';
+        ind.textContent = fmtH(worked) + ' worked  ·  ' + fmtH(dh) + ' standard  ·  ' + fmtH(otH) + ' OT';
+      } else {
+        ind.className = 'ibox ibox-g';
+        ind.textContent = fmtH(worked) + ' worked  ·  Within ' + fmtH(dh) + ' standard  ·  No overtime';
+      }
+    }
+  } else {
+    var ind2 = document.getElementById('hoursInd');
+    if (ind2) ind2.style.display = 'none';
+  }
+
+  var otS = Math.min(otH, 4);
+  var otD = Math.max(0, otH - 4);
+  var otPay = hr > 0 ? (otS * hr * 1.5) + (otD * hr * 2) : 0;
+
+  // ── TRAVEL ──
+  var tTo = 0, tFr = 0;
+  if (isSR) {
+    var ttog = document.getElementById('travToTog');
+    var ftog = document.getElementById('travFrTog');
+    if (ttog && ttog.checked) tTo = parseFloat(document.getElementById('travTo').value) || 0;
+    if (ftog && ftog.checked) tFr = parseFloat(document.getElementById('travFr').value) || 0;
+  }
+  var tHrs  = tTo + tFr;
+  var incl  = isS ? getInclTrav() : 0;
+  var billT = Math.max(0, tHrs - incl);
+  var tPay  = isSR ? hr * billT : 0;
+
+  // ── STUNT ADJ ──
+  var sa = isS ? (parseFloat(document.getElementById('stuntAdj') ? document.getElementById('stuntAdj').value : '0') || 0) : 0;
+
+  // ── HIRE ──
+  var hire = totalHire();
+
+  // ── TURNAROUND ──
+  var turnPay = 0, turnHrs = 0;
+  var prevW = document.getElementById('prevWrap') ? document.getElementById('prevWrap').value : '';
+  var ti = document.getElementById('turnInfo');
+  if (prevW) {
+    if (call) {
+      var gap = turnaroundGap(prevW, call);
+      if (gap !== null) {
+        if (gap < 10) {
+          turnHrs = 10 - gap;
+          turnPay = hr > 0 ? turnHrs * hr * 1.5 : 0;
+          if (ti) {
+            ti.style.display = 'block';
+            ti.className = 'ibox ibox-r';
+            ti.innerHTML = '&#9888;&#65039; ' + fmtH(gap) + ' turnaround &nbsp;&middot;&nbsp; <strong>' + fmtH(turnHrs) + ' short</strong>' + (hr > 0 ? ' &nbsp;&middot;&nbsp; Penalty: R' + turnPay.toFixed(2) : ' (set rate for penalty calc)');
+          }
+        } else {
+          if (ti) {
+            ti.style.display = 'block';
+            ti.className = 'ibox ibox-g';
+            ti.textContent = 'OK: ' + fmtH(gap) + ' turnaround — no penalty';
+          }
+        }
+      }
+    } else {
+      if (ti) {
+        ti.style.display = 'block';
+        ti.className = 'ibox ibox-n';
+        ti.textContent = 'Prev wrap: ' + prevW + ' — enter call time to check turnaround';
+      }
+    }
+  } else {
+    if (ti) ti.style.display = 'none';
+  }
+
+  // ── SASA ──
+  var sasaEl  = document.getElementById('sasaTog');
+  var sasaOn  = sasaEl ? sasaEl.checked : false;
+  var sasaAmt = sasaOn ? (parseFloat(document.getElementById('sasaAmt') ? document.getElementById('sasaAmt').value : '50') || 50) : 0;
+
+  // ── TOTALS ──
+  var gross = billedRate + tPay + otPay + sa + hire + turnPay;
+  var total = gross - sasaAmt;
+
+  // ── RATE INFO ──
+  var ri = document.getElementById('rateInfo');
+  if (ri) {
+    if (rate > 0) {
+      ri.style.display = 'block';
+      ri.className = 'ibox ibox-a';
+      var ptl = prodType==='feature' ? 'Feature 12hr' : prodType==='commercial' ? 'Commercial 10hr' : 'Custom '+dh+'hr';
+      ri.textContent = (halfDay ? 'Half Day: R' + billedRate.toFixed(2) + '  ·  ' : 'Rate: R' + rate.toFixed(2) + '/day  ·  ') + 'Hourly: R' + hr.toFixed(2) + '/hr  ·  ' + ptl;
+    } else {
+      ri.style.display = 'block';
+      ri.className = 'ibox ibox-r';
+      ri.textContent = 'No rate set — add a Default Day Rate in Projects';
+    }
+  }
+
+  // ── OT BREAKDOWN ──
+  var ob = document.getElementById('otBreak');
+  if (ob) {
+    if (otH > 0 && hr > 0) {
+      var html = '';
+      if (otS > 0) html += '<div class="ot-row"><span class="ot-lbl">1.5x — ' + fmtH(otS) + ' @ R' + (hr*1.5).toFixed(2) + '/hr</span><span class="ot-val">R' + (otS*hr*1.5).toFixed(2) + '</span></div>';
+      if (otD > 0) html += '<div class="ot-row dbl"><span class="ot-lbl">2x — ' + fmtH(otD) + ' @ R' + (hr*2).toFixed(2) + '/hr</span><span class="ot-val">R' + (otD*hr*2).toFixed(2) + '</span></div>';
+      ob.innerHTML = html;
+    } else {
+      ob.innerHTML = '';
+    }
+  }
+
+  // ── SUMMARY ROWS ──
+  var s = function(id, val) { var e=document.getElementById(id); if(e) e.textContent=val; };
+  var sd = function(id, vis) { var e=document.getElementById(id); if(e) e.style.display=vis?'':'none'; };
+  var ptL = prodType==='feature'?'Feature (12hr)':prodType==='commercial'?'Commercial (10hr)':'Custom ('+dh+'hr)';
+  s('sumProd',  ptL);
+  s('sumHr',    hr > 0  ? 'R'+hr.toFixed(2)+'/hr' : '—');
+  s('sumWork',  worked > 0  ? fmtH(worked) : '—');
+  s('sumTrav',  tHrs > 0 ? fmtH(tHrs)+(incl>0?' ('+fmtH(incl)+' incl.)':'') : '—');
+  s('sumRate',  rate > 0 ? 'R'+billedRate.toFixed(2)+(halfDay?' (half day)':'') : '—');
+  s('sumTPay',  tPay > 0 ? 'R'+tPay.toFixed(2) : (incl>0&&tHrs>0?'Included':'—'));
+  s('sumOT',    otPay > 0 ? 'R'+otPay.toFixed(2) : '—');
+  s('sumSA',    sa > 0 ? 'R'+sa.toFixed(2) : '—');
+  sd('srHire',  hire > 0);
+  s('sumHire',  hire > 0 ? 'R'+hire.toFixed(2) : '—');
+  sd('srTurn',  turnPay > 0);
+  s('sumTurn',  turnPay > 0 ? 'R'+turnPay.toFixed(2) : '—');
+  sd('srSasa',  sasaOn);
+  s('sumSasa',  sasaOn ? '- R'+sasaAmt.toFixed(2) : '—');
+  sd('srGross', sasaOn);
+  s('sumGross', gross > 0 ? 'R'+gross.toFixed(2) : '—');
+  s('sumTotal', total > 0 ? 'R'+total.toFixed(2) : '—');
+}
+
+// Poll for time changes every 500ms (reliable on all browsers/devices)
+var _lastCall = '', _lastWrap = '';
+setInterval(function() {
+  var callEl = document.getElementById('callTime');
+  var wrapEl = document.getElementById('wrapTime');
+  if (!callEl || !wrapEl) return;
+  var c = callEl.value, w = wrapEl.value;
+  if (c !== _lastCall || w !== _lastWrap) {
+    _lastCall = c; _lastWrap = w;
+    runCalc();
+  }
+}, 500);
+
+// ── PROJECT SELECTOR ───────────────────────
+function onProjChange() {
+  var id = document.getElementById('logProj').value;
+  var pi = document.getElementById('projInfo');
+  var rateEl = document.getElementById('dayRate');
+  if (id) {
+    var proj = S.projects.find(function(p){ return p.id === id; });
+    if (proj) {
+      if (pi) {
+        var parts = [];
+        if (proj.company) parts.push(proj.company);
+        if (proj.pic) parts.push('In charge: ' + proj.pic);
+        pi.textContent = parts.join('  ·  ');
+        pi.style.display = parts.length ? 'block' : 'none';
+      }
+      if (rateEl) rateEl.value = proj.rate || '';
+    }
+  } else {
+    if (pi) pi.style.display = 'none';
+    if (rateEl) rateEl.value = '';
+  }
+  autofillPrevWrap();
+  runCalc();
+}
+
+function onDateChange() {
+  autofillPrevWrap();
+  runCalc();
+}
+
+function autofillPrevWrap() {
+  var id   = document.getElementById('logProj').value;
+  var date = document.getElementById('logDate').value;
+  var pwEl = document.getElementById('prevWrap');
+  var ti   = document.getElementById('turnInfo');
+  if (!id || !date || !pwEl) return;
+  // Find most recent entry for this project before this date that has a wrap time
+  var prior = S.entries
+    .filter(function(e){ return e.projectId === id && e.date < date && e.wrap; })
+    .sort(function(a,b){ return b.date.localeCompare(a.date); });
+  if (prior.length > 0) {
+    pwEl.value = prior[0].wrap;
+    var d   = new Date(prior[0].date + 'T12:00:00');
+    var lbl = d.toLocaleDateString('en-ZA', {weekday:'short',day:'numeric',month:'short'});
+    if (ti) {
+      ti.style.display = 'block';
+      ti.className = 'ibox ibox-n';
+      ti.textContent = 'Prev wrap auto-filled from ' + lbl + ' (' + prior[0].wrap + ')';
+    }
+  } else {
+    // Only clear if not already set by user
+    if (pwEl.value === '' || pwEl.getAttribute('data-autofilled') === 'true') {
+      pwEl.value = '';
+      pwEl.setAttribute('data-autofilled','true');
+    }
+    if (ti) ti.style.display = 'none';
+  }
+}
+
+// ── SAVE ENTRY ─────────────────────────────
+function saveEntry() {
+  var al = document.getElementById('logAlert');
+  al.className = 'alert';
+  al.style.display = 'none';
+
+  // Validate
+  var projId = document.getElementById('logProj').value;
+  if (!projId) { al.textContent = 'Please select a project.'; al.className = 'alert err'; return; }
+  var date = document.getElementById('logDate').value;
+  if (!date) { al.textContent = 'Please enter a date.'; al.className = 'alert err'; return; }
+  var isSR = dayType === 'shoot' || dayType === 'rehearsal';
+  var isS  = dayType === 'shoot';
+  var call = isSR ? document.getElementById('callTime').value : '';
+  var wrap = isSR ? document.getElementById('wrapTime').value : '';
+  if (isSR && (!call || !wrap)) { al.textContent = 'Please enter call and wrap times.'; al.className = 'alert err'; return; }
+
+  // Calculations
+  var dh   = getDayHrs();
+  var rate = parseFloat(document.getElementById('dayRate').value) || 0;
+  var halfDay = document.getElementById('halfDay').checked;
+  var billedRate = halfDay ? rate * 0.5 : rate;
+  var hr   = rate > 0 ? rate / dh : 0; // hourly always from full rate
+  var ov   = document.getElementById('overnight').checked;
+
+  var worked = (call && wrap) ? timeDiff(call, wrap, ov) : 0;
+  var rawOT  = worked - dh;
+  var otH    = rawOT > 0 ? Math.round(rawOT * 4) / 4 : 0;
+  var otS    = Math.min(otH, 4);
+  var otD    = Math.max(0, otH - 4);
+  var otPay  = hr > 0 ? (otS * hr * 1.5) + (otD * hr * 2) : 0;
+
+  var tTo = 0, tFr = 0;
+  if (isSR) {
+    if (document.getElementById('travToTog').checked) tTo = parseFloat(document.getElementById('travTo').value) || 0;
+    if (document.getElementById('travFrTog').checked) tFr = parseFloat(document.getElementById('travFr').value) || 0;
+  }
+  var tHrs  = tTo + tFr;
+  var incl  = isS ? getInclTrav() : 0;
+  var billT = Math.max(0, tHrs - incl);
+  var tPay  = isSR ? hr * billT : 0;
+
+  var sa   = isS ? (parseFloat(document.getElementById('stuntAdj').value) || 0) : 0;
+  var hire = totalHire();
+
+  var prevW    = document.getElementById('prevWrap').value;
+  var turnPay  = 0, turnHrs = 0;
+  if (prevW && call && hr > 0) {
+    var gap = turnaroundGap(prevW, call);
+    if (gap !== null && gap < 10) {
+      turnHrs = 10 - gap;
+      turnPay = turnHrs * hr * 1.5;
+    }
+  }
+
+  var sasaOn  = document.getElementById('sasaTog').checked;
+  var sasaAmt = sasaOn ? (parseFloat(document.getElementById('sasaAmt').value) || 50) : 0;
+  var gross   = billedRate + tPay + otPay + sa + hire + turnPay;
+  var total   = gross - sasaAmt;
+  var wk      = shootWeekNum(date, projId);
+
+  var entry = {
+    id:        editId || Date.now().toString(),
+    date:      date,
+    projectId: projId,
+    dayType:   dayType,
+    prodType:  prodType,
+    custHrs:   prodType === 'custom' ? (parseFloat(document.getElementById('custHrs').value)||12) : null,
+    custTrav:  prodType === 'custom' ? getInclTrav() : null,
+    call:      call,
+    wrap:      wrap,
+    overnight: ov,
+    halfDay:   halfDay,
+    workHrs:   worked,
+    travTo:    tTo,
+    travFr:    tFr,
+    travHrs:   tHrs,
+    travPay:   tPay,
+    rate:      billedRate,
+    fullRate:  rate,
+    hr:        hr,
+    otHrs:     otH,
+    otS:       otS,
+    otD:       otD,
+    otPay:     otPay,
+    stuntAdj:  sa,
+    hires:     hires.slice(),
+    hireTot:   hire,
+    prevWrap:  prevW,
+    turnPay:   turnPay,
+    turnHrs:   turnHrs,
+    sasaOn:    sasaOn,
+    sasaAmt:   sasaAmt,
+    gross:     gross,
+    total:     total,
+    wk:        wk,
+    notes:     document.getElementById('logNotes').value.trim()
+  };
+
+  if (editId) {
+    var idx = S.entries.findIndex(function(e){ return e.id === editId; });
+    if (idx !== -1) S.entries[idx] = entry; else S.entries.push(entry);
+  } else {
+    S.entries.push(entry);
+  }
+  persist();
+
+  var wkLbl = wk ? ' · Shoot Week ' + wk : '';
+  toast('Saved — R' + total.toFixed(2) + wkLbl, 'ok');
+  al.textContent = 'Saved — R' + total.toFixed(2) + wkLbl;
+  al.className = 'alert ok';
+  setTimeout(function(){ al.style.display = 'none'; }, 3000);
+  resetForm();
+}
+
+function resetForm() {
+  editId = null;
+  document.getElementById('saveBtn').textContent = 'Save Day Entry';
+  document.getElementById('delBtn').style.display = 'none';
+  var ids = ['callTime','wrapTime','stuntAdj','logNotes','custHrs','custTrav','prevWrap'];
+  ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('otHrs').value = '0';
+  document.getElementById('travTo').value = '0';
+  document.getElementById('travFr').value = '0';
+  ['travToTog','travFrTog','sasaTog','overnight','halfDay'].forEach(function(id){ var e=document.getElementById(id); if(e) e.checked=false; });
+  ['travToSec','travFrSec','sasaSec'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
+  document.getElementById('otBreak').innerHTML = '';
+  var hi = document.getElementById('hoursInd'); if(hi) hi.style.display='none';
+  var ti = document.getElementById('turnInfo'); if(ti) ti.style.display='none';
+  document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
+  // Re-load rate from currently selected project
+  var projId = document.getElementById('logProj').value;
+  if (projId) {
+    var proj = S.projects.find(function(p){ return p.id===projId; });
+    document.getElementById('dayRate').value = proj && proj.rate ? proj.rate : '';
+  } else {
+    document.getElementById('dayRate').value = '';
+  }
+  resetHires();
+  setDT('shoot');
+  setPT('feature');
+  autofillPrevWrap();
+}
+
+// ── EDIT ENTRY ─────────────────────────────
+function editEntry(id) {
+  var e = S.entries.find(function(x){ return x.id === id; });
+  if (!e) return;
+  editId = id;
+  // Project
+  document.getElementById('logProj').value = e.projectId || '';
+  onProjChange(); // loads rate from project, then we override with saved rate
+  document.getElementById('dayRate').value = e.rate || '';
+  setDT(e.dayType || 'shoot');
+  setPT(e.prodType || 'feature');
+  if (e.prodType === 'custom') {
+    if (e.custHrs) document.getElementById('custHrs').value = e.custHrs;
+    if (e.custTrav) document.getElementById('custTrav').value = e.custTrav;
+  }
+  document.getElementById('logDate').value  = e.date;
+  document.getElementById('callTime').value = e.call || '';
+  document.getElementById('wrapTime').value = e.wrap || '';
+  document.getElementById('overnight').checked = e.overnight || false;
+  document.getElementById('halfDay').checked = e.halfDay || false;
+  document.getElementById('stuntAdj').value = e.stuntAdj || '';
+  document.getElementById('logNotes').value = e.notes || '';
+  document.getElementById('otHrs').value = String(e.otHrs || 0);
+  document.getElementById('sasaTog').checked = e.sasaOn || false;
+  document.getElementById('sasaAmt').value = e.sasaAmt || 50;
+  document.getElementById('sasaSec').style.display = e.sasaOn ? 'block' : 'none';
+  if (e.travTo > 0) {
+    document.getElementById('travToTog').checked = true;
+    document.getElementById('travToSec').style.display = 'block';
+    document.getElementById('travTo').value = String(e.travTo);
+  }
+  if (e.travFr > 0) {
+    document.getElementById('travFrTog').checked = true;
+    document.getElementById('travFrSec').style.display = 'block';
+    document.getElementById('travFr').value = String(e.travFr);
+  }
+  document.getElementById('prevWrap').value = e.prevWrap || '';
+  hires = e.hires ? e.hires.slice() : [];
+  renderHires();
+  document.getElementById('saveBtn').textContent = 'Update Entry';
+  document.getElementById('delBtn').style.display = 'block';
+  runCalc();
+  showPage('log');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function delCurrent() {
+  if (!editId) return;
+  var e = S.entries.find(function(x){ return x.id === editId; });
+  var lbl = e ? new Date(e.date+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'short',month:'short',day:'numeric'}) : 'this entry';
+  showConfirm('Delete Entry?','Delete entry for <strong>'+lbl+'</strong>? Cannot be undone.','Yes, Delete',function(){
+    var did = editId;
+    resetForm();
+    S.entries = S.entries.filter(function(x){ return x.id !== did; });
+    persist();
+    toast('Entry deleted','del');
+  });
+}
+
+// ── RENDER ENTRIES ─────────────────────────
+function renderEntries() {
+  var pf = document.getElementById('fProj').value;
+  var ws = document.getElementById('fWeek');
+  ws.innerHTML = '<option value="all">All Weeks</option>';
+  var nums = new Set();
+  S.entries.forEach(function(e){
+    if (pf==='all'||e.projectId===pf){
+      var w = e.wk || shootWeekNum(e.date,e.projectId);
+      if (w) nums.add(w);
+    }
+  });
+  Array.from(nums).sort(function(a,b){return a-b;}).forEach(function(w){
+    ws.innerHTML += '<option value="'+w+'">Shoot Week '+w+'</option>';
+  });
+
+  var wf = document.getElementById('fWeek').value;
+  var list = document.getElementById('entriesList');
+  var entries = S.entries.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+  if (pf !== 'all') entries = entries.filter(function(e){ return e.projectId===pf; });
+  if (wf !== 'all') {
+    var wn = parseInt(wf);
+    entries = entries.filter(function(e){ return (e.wk||shootWeekNum(e.date,e.projectId))===wn; });
+  }
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty"><div class="big">📋</div><p>No entries yet. Start logging days!</p></div>';
+    return;
+  }
+
+  var grouped = {};
+  entries.forEach(function(e){
+    var w = e.wk || shootWeekNum(e.date,e.projectId) || '?';
+    if (!grouped[w]) grouped[w] = [];
+    grouped[w].push(e);
+  });
+
+  var dtB = {shoot:'🎬 Shoot',rehearsal:'🤸 Rehearsal',preprod:'📋 Pre-Prod',travel:'✈️ Travel'};
+  var html = '';
+  Object.keys(grouped).sort(function(a,b){return Number(b)-Number(a);}).forEach(function(wk){
+    var wkE = grouped[wk];
+    var wkT = wkE.reduce(function(s,e){ return s+(e.total||0); }, 0);
+    html += '<div class="wk-lbl">Shoot Week <b>'+wk+'</b> &nbsp;·&nbsp; R'+wkT.toFixed(2)+'</div>';
+    wkE.forEach(function(e){
+      var proj = S.projects.find(function(p){ return p.id===e.projectId; });
+      var ds = new Date(e.date+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'short',month:'short',day:'numeric'});
+      var dt = dtB[e.dayType||'shoot'] || '🎬 Shoot';
+      html += '<div class="ec">';
+      html += '<div class="eh">';
+      html += '<div><div class="ed">'+ds+'</div><div class="em">'+dt+' &nbsp;·&nbsp; '+(proj?proj.title:'Unknown')+'</div></div>';
+      html += '<div style="display:flex;gap:6px;">';
+      html += '<button class="btn-sm" data-eid="'+e.id+'" onclick="editEntry(this.getAttribute(\'data-eid\'))">Edit</button>';
+      html += '<button class="btn-sm-red" data-eid="'+e.id+'" onclick="delById(this.getAttribute(\'data-eid\'))">Delete</button>';
+      html += '</div></div>';
+      html += '<div class="chips">';
+      if (e.call)    html += '<div class="chip">Call <b>'+e.call+'</b></div>';
+      if (e.wrap)    html += '<div class="chip">Wrap <b>'+e.wrap+(e.overnight?' +1':'')+'</b></div>';
+      if (e.otHrs>0) html += '<div class="chip">OT <b>'+fmtH(e.otHrs)+'</b></div>';
+      if (e.travTo>0)html += '<div class="chip">To Set <b>'+fmtH(e.travTo)+'</b></div>';
+      if (e.travFr>0)html += '<div class="chip">Home <b>'+fmtH(e.travFr)+'</b></div>';
+      if (e.hireTot>0)html += '<div class="chip">Hire <b>R'+e.hireTot.toFixed(2)+'</b></div>';
+      if (e.turnPay>0)html += '<div class="chip">Turnaround <b>R'+e.turnPay.toFixed(2)+'</b></div>';
+      html += '</div>';
+      if (e.notes) html += '<div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-style:italic;">&ldquo;'+e.notes+'&rdquo;</div>';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+      html += '<span style="font-family:var(--font-m);font-size:11px;color:var(--accent);">'+(e.workHrs>0?fmtH(e.workHrs)+' worked':'Flat rate')+'</span>';
+      html += '<span style="font-family:var(--font-m);font-size:14px;color:var(--green);font-weight:600;">R'+(e.total||0).toFixed(2)+'</span>';
+      html += '</div></div>';
+    });
+  });
+  list.innerHTML = html;
+}
+
+function delById(id) {
+  var e = S.entries.find(function(x){ return x.id===id; });
+  var lbl = e ? new Date(e.date+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'short',month:'short',day:'numeric'}) : 'this entry';
+  showConfirm('Delete Entry?','Delete entry for <strong>'+lbl+'</strong>?','Yes, Delete',function(){
+    S.entries = S.entries.filter(function(x){ return x.id!==id; });
+    persist(); renderEntries(); toast('Entry deleted','del');
+  });
+}
+
+// ── TIMESHEET ──────────────────────────────
+function populateWeeks() {
+  var pf  = document.getElementById('tsProj').value;
+  var sel = document.getElementById('tsWeek');
+  sel.innerHTML = '<option value="all">All Weeks</option>';
+  if (pf !== 'all') {
+    var nums = new Set();
+    S.entries.filter(function(e){ return e.projectId===pf; }).forEach(function(e){
+      var w = e.wk || shootWeekNum(e.date,e.projectId);
+      if (w) nums.add(w);
+    });
+    Array.from(nums).sort(function(a,b){return a-b;}).forEach(function(w){
+      sel.innerHTML += '<option value="'+w+'">Shoot Week '+w+'</option>';
+    });
+  }
+}
+
+function genTS() {
+  var pf = document.getElementById('tsProj').value;
+  var wv = document.getElementById('tsWeek').value;
+  var entries = S.entries.slice();
+  if (pf !== 'all') entries = entries.filter(function(e){ return e.projectId===pf; });
+  if (wv !== 'all') {
+    var wn = parseInt(wv);
+    entries = entries.filter(function(e){ return (e.wk||shootWeekNum(e.date,e.projectId))===wn; });
+  }
+  entries.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  if (!entries.length) { toast('No entries for this selection','del'); return; }
+
+  var T = entries.reduce(function(a,e){
+    return {
+      d:a.d+1, wh:a.wh+(e.workHrs||0), th:a.th+(e.travHrs||0),
+      oh:a.oh+(e.otHrs||0), rate:a.rate+(e.rate||0),
+      tp:a.tp+(e.travPay||0), op:a.op+(e.otPay||0),
+      sa:a.sa+(e.stuntAdj||0), hire:a.hire+(e.hireTot||0),
+      turn:a.turn+(e.turnPay||0), sasa:a.sasa+(e.sasaAmt||0),
+      gross:a.gross+(e.gross||0), total:a.total+(e.total||0)
+    };
+  }, {d:0,wh:0,th:0,oh:0,rate:0,tp:0,op:0,sa:0,hire:0,turn:0,sasa:0,gross:0,total:0});
+
+  document.getElementById('tsTots').innerHTML =
+    '<div><div class="tv">'+T.d+'</div><div class="tl">Days</div></div>'+
+    '<div><div class="tv">'+(T.wh+T.th).toFixed(1)+'</div><div class="tl">Total Hrs</div></div>'+
+    '<div><div class="tv">R'+Math.round(T.total).toLocaleString()+'</div><div class="tl">Earnings</div></div>';
+
+  var nm   = S.settings.name || 'PERFORMER NAME';
+  var un   = S.settings.union || '';
+  var pObj = pf!=='all' ? S.projects.find(function(p){ return p.id===pf; }) : null;
+  var pLbl = pObj ? pObj.title.toUpperCase() : 'ALL PROJECTS';
+  var wLbl = wv!=='all' ? 'SHOOT WEEK '+wv : 'ALL WEEKS';
+  var div  = Array(52).fill('\u2500').join('');
+  var dtL  = {shoot:'Shoot',rehearsal:'Rehearsal',preprod:'Pre-Production',travel:'Travel'};
+
+  var lines = ['STUNTLOG — THE STUNT COLLECTIVE','TIMESHEET REPORT',div,'PERFORMER : '+nm];
+  if (un) lines.push('UNION      : '+un);
+  lines.push('PROJECT    : '+pLbl);
+  if (pObj && pObj.pic) lines.push('ATTN       : '+pObj.pic);
+  lines.push('PERIOD     : '+wLbl, div, '');
+
+  entries.forEach(function(e){
+    var proj = S.projects.find(function(p){ return p.id===e.projectId; });
+    var ds = new Date(e.date+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'long',month:'short',day:'numeric'});
+    var wk = e.wk || shootWeekNum(e.date,e.projectId) || '?';
+    lines.push('DATE       : '+ds+'  [Week '+wk+']');
+    lines.push('TYPE       : '+(dtL[e.dayType||'shoot']||'Shoot')+' Day');
+    if (proj) lines.push('PROJECT    : '+proj.title+' — '+proj.company);
+    if (e.halfDay) lines.push('RATE       : Half Day (50%)');
+    if (e.call) lines.push('CALL       : '+e.call+'     WRAP: '+e.wrap+(e.overnight?' (overnight)':''));
+    if (e.travTo>0) lines.push('TRAVEL TO  : '+fmtH(e.travTo));
+    if (e.travFr>0) lines.push('TRAVEL HOME: '+fmtH(e.travFr));
+    if (e.otHrs>0) {
+      var ots = fmtH(e.otHrs);
+      if (e.otS>0) ots += ' ('+fmtH(e.otS)+' @1.5x';
+      if (e.otD>0) ots += '+'+fmtH(e.otD)+' @2x';
+      if (e.otS>0||e.otD>0) ots += ')';
+      lines.push('OVERTIME   : '+ots);
+    }
+    if (e.notes) lines.push('NOTES      : '+e.notes);
+    lines.push('');
+    lines.push('  Day Rate:           R'+(e.rate||0).toFixed(2));
+    if (e.travPay>0)   lines.push('  Travel Pay:         R'+e.travPay.toFixed(2));
+    if (e.otPay>0)     lines.push('  Overtime Pay:        R'+e.otPay.toFixed(2));
+    if (e.stuntAdj>0)  lines.push('  Stunt Adj:          R'+e.stuntAdj.toFixed(2));
+    if (e.hireTot>0) {
+      lines.push('  Hire:               R'+e.hireTot.toFixed(2));
+      if (e.hires) e.hires.forEach(function(h){ if(h.amt>0) lines.push('    - '+h.desc+': R'+h.amt.toFixed(2)); });
+    }
+    if (e.turnPay>0)   lines.push('  Turnaround:         R'+e.turnPay.toFixed(2)+' ('+fmtH(e.turnHrs)+' short @1.5x)');
+    if (e.sasaOn)      lines.push('  SASA:               - R'+(e.sasaAmt||0).toFixed(2));
+    lines.push('  DAY TOTAL:          R'+(e.total||0).toFixed(2));
+    lines.push('', '  '+Array(48).fill('.').join(''), '');
+  });
+
+  lines.push(div,'SUMMARY',div);
+  if (T.wh>0)   lines.push('Work Hours:         '+fmtH(T.wh));
+  if (T.th>0)   lines.push('Travel Hours:       '+fmtH(T.th));
+  if (T.oh>0)   lines.push('OT Hours:           '+fmtH(T.oh));
+  lines.push('Day Rates:          R'+T.rate.toFixed(2));
+  if (T.tp>0)   lines.push('Travel Pay:         R'+T.tp.toFixed(2));
+  if (T.op>0)   lines.push('OT Pay:             R'+T.op.toFixed(2));
+  if (T.sa>0)   lines.push('Stunt Adj:          R'+T.sa.toFixed(2));
+  if (T.hire>0) lines.push('Hire:               R'+T.hire.toFixed(2));
+  if (T.turn>0) lines.push('Turnaround:         R'+T.turn.toFixed(2));
+  if (T.sasa>0) { lines.push('SASA:               - R'+T.sasa.toFixed(2)); lines.push('Gross:              R'+T.gross.toFixed(2)); }
+  lines.push(div,'TOTAL EARNINGS:     R'+T.total.toFixed(2), div,'');
+  lines.push('PERFORMER SIGNATURE: _______________________');
+  lines.push('DATE SIGNED:         _______________________');
+  lines.push('','Generated by StuntLog | The Stunt Collective');
+
+  document.getElementById('tsText').textContent = lines.join('\n');
+  document.getElementById('tsOut').style.display = 'block';
+  document.getElementById('tsOut').scrollIntoView({behavior:'smooth'});
+}
+
+function copyTS() {
+  navigator.clipboard.writeText(document.getElementById('tsText').textContent).then(function(){
+    toast('Timesheet copied','ok');
+  });
+}
+
+function emailTS() {
+  var body = document.getElementById('tsText').textContent;
+  if (!body) { toast('Generate a timesheet first','del'); return; }
+  var pf = document.getElementById('tsProj').value;
+  var toEmail = '';
+  var subject = 'Timesheet — The Stunt Collective';
+  if (pf !== 'all') {
+    var proj = S.projects.find(function(p){ return p.id===pf; });
+    if (proj) {
+      if (proj.email) toEmail = proj.email;
+      subject = 'Timesheet — ' + proj.title;
+    }
+  }
+  // Use Web Share API — triggers native iOS share sheet
+  // User can pick Mail, WhatsApp, Messages, etc.
+  // Mail will open with full text pre-filled
+  if (navigator.share) {
+    navigator.share({
+      title: subject,
+      text: body
+    }).then(function(){
+      toast('Shared successfully','ok');
+    }).catch(function(err){
+      if (err.name !== 'AbortError') {
+        // Fallback to copy
+        navigator.clipboard.writeText(body).then(function(){
+          toast('Copied — paste into your email','ok');
+        });
+      }
+    });
+  } else {
+    // Desktop fallback — copy to clipboard
+    navigator.clipboard.writeText(body).then(function(){
+      toast('Timesheet copied — paste into your email','ok');
+    });
+  }
+}
+
+// ── PROJECTS ───────────────────────────────
+function addProject() {
+  var title = document.getElementById('pTitle').value.trim();
+  var start = document.getElementById('pStart').value;
+  if (!title) { toast('Please enter a project title','del'); return; }
+  if (!start) { toast('Please set a shoot start date','del'); return; }
+  var proj = {
+    id:        Date.now().toString(),
+    title:     title,
+    company:   document.getElementById('pCompany').value.trim(),
+    startDate: start,
+    pic:       document.getElementById('pPIC').value.trim(),
+    email:     document.getElementById('pEmail').value.trim(),
+    rate:      parseFloat(document.getElementById('pRate').value) || 0
+  };
+  S.projects.push(proj);
+  persist();
+  refreshDropdowns();
+  renderProjects();
+  updateHdr();
+  ['pTitle','pCompany','pStart','pPIC','pEmail','pRate'].forEach(function(id){ document.getElementById(id).value=''; });
+  toast('Project "'+proj.title+'" created','ok');
+}
+
+function editProject(id) {
+  var proj = S.projects.find(function(p){ return p.id===id; });
+  if (!proj) return;
+  // Fill the form fields with existing data
+  document.getElementById('pTitle').value   = proj.title   || '';
+  document.getElementById('pCompany').value = proj.company || '';
+  document.getElementById('pStart').value   = proj.startDate || '';
+  document.getElementById('pPIC').value     = proj.pic     || '';
+  document.getElementById('pEmail').value   = proj.email   || '';
+  document.getElementById('pRate').value    = proj.rate    || '';
+  // Change the Add button to Save
+  var btn = document.querySelector('[onclick="addProject()"]');
+  if (btn) {
+    btn.textContent = 'Save Changes';
+    btn.setAttribute('onclick', 'saveProjectEdit("'+id+'")');
+  }
+  // Scroll to top of projects page
+  window.scrollTo({top:0,behavior:'smooth'});
+  toast('Edit the fields above then tap Save Changes','ok');
+}
+
+function saveProjectEdit(id) {
+  var title = document.getElementById('pTitle').value.trim();
+  var start = document.getElementById('pStart').value;
+  if (!title) { toast('Please enter a project title','del'); return; }
+  if (!start) { toast('Please set a shoot start date','del'); return; }
+  var idx = S.projects.findIndex(function(p){ return p.id===id; });
+  if (idx === -1) return;
+  S.projects[idx].title     = title;
+  S.projects[idx].company   = document.getElementById('pCompany').value.trim();
+  S.projects[idx].startDate = start;
+  S.projects[idx].pic       = document.getElementById('pPIC').value.trim();
+  S.projects[idx].email     = document.getElementById('pEmail').value.trim();
+  S.projects[idx].rate      = parseFloat(document.getElementById('pRate').value) || 0;
+  persist();
+  refreshDropdowns();
+  renderProjects();
+  updateHdr();
+  // Clear form and restore Add button
+  ['pTitle','pCompany','pStart','pPIC','pEmail','pRate'].forEach(function(id){ document.getElementById(id).value=''; });
+  var btn = document.querySelector('[onclick*="saveProjectEdit"]');
+  if (btn) { btn.textContent='+ Add Project'; btn.setAttribute('onclick','addProject()'); }
+  toast('Project updated','ok');
+}
+
+function delProjectById(id) {
+  var proj = S.projects.find(function(p){ return p.id===id; });
+  if (!proj) return;
+  showConfirm('Delete Project?','Delete <strong>'+proj.title+'</strong>? Entries will be kept.','Yes, Delete',function(){
+    S.projects = S.projects.filter(function(p){ return p.id!==id; });
+    persist(); refreshDropdowns(); renderProjects(); updateHdr();
+    toast('Project deleted','del');
+  });
+}
+
+function renderProjects() {
+  var list = document.getElementById('projList');
+  if (!S.projects.length) {
+    list.innerHTML = '<div class="empty"><div class="big">🎬</div><p>No projects yet.</p></div>';
+    return;
+  }
+  list.innerHTML = S.projects.map(function(p){
+    var sd = p.startDate ? new Date(p.startDate+'T12:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'}) : '';
+    return '<div class="pi">'
+      + '<div style="flex:1;min-width:0;">'
+      + '<div class="pn">'+p.title+'</div>'
+      + (p.company ? '<div class="ps">'+p.company+'</div>' : '')
+      + (p.pic     ? '<div class="ps">In charge: '+p.pic+'</div>' : '')
+      + (p.email   ? '<div class="ps">Email: '+p.email+'</div>' : '')
+      + (sd        ? '<div class="ps">Starts: '+sd+'</div>' : '')
+      + (p.rate    ? '<div class="ps" style="color:var(--accent);">Rate: R'+p.rate.toLocaleString()+'/day</div>' : '')
+      + '</div>'
+      + '<div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;margin-left:8px;">'
+      + '<button class="btn-sm" data-pid="'+p.id+'" onclick="editProject(this.getAttribute(\'data-pid\'))">Edit</button>'
+      + '<button class="btn-sm-red" data-pid="'+p.id+'" onclick="delProjectById(this.getAttribute(\'data-pid\'))">Delete</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function refreshDropdowns() {
+  ['fProj','tsProj'].forEach(function(selId){
+    var sel = document.getElementById(selId);
+    if (!sel) return;
+    var cur = sel.value;
+    sel.innerHTML = '<option value="all">All Projects</option>'
+      + S.projects.map(function(p){ return '<option value="'+p.id+'">'+p.title+'</option>'; }).join('');
+    if (cur) sel.value = cur;
+  });
+  var lp = document.getElementById('logProj');
+  if (lp) {
+    var cur = lp.value;
+    lp.innerHTML = '<option value="">— Select a project —</option>'
+      + S.projects.map(function(p){ return '<option value="'+p.id+'">'+p.title+(p.company?' — '+p.company:'')+'</option>'; }).join('');
+    if (cur) lp.value = cur;
+  }
+}
+
+function updateHdr() {
+  var n = S.projects.length;
+  var el = document.getElementById('hdrProj');
+  if (!el) return;
+  el.innerHTML = n > 0
+    ? '<strong style="display:block;color:var(--text);font-size:11px;">'+n+' project'+(n>1?'s':'')+' active</strong>select per log'
+    : '<strong style="display:block;color:var(--text);font-size:11px;">No projects yet</strong>tap Projects to add';
+}
+
+// ── SETTINGS ───────────────────────────────
+function saveSettings() {
+  S.settings.name  = document.getElementById('sName').value.trim();
+  S.settings.union = document.getElementById('sUnion').value.trim();
+  persist();
+  toast('Settings saved','ok');
+}
+
+function confirmClear() {
+  showConfirm('Clear Everything?','This permanently deletes <strong>all data</strong>. Cannot be undone.','Yes, Clear All',function(){
+    S = { projects:[], entries:[], settings:S.settings };
+    persist(); refreshDropdowns(); renderEntries(); renderProjects(); updateHdr();
+    document.getElementById('logProj').value = '';
+    document.getElementById('dayRate').value = '';
+    var pi = document.getElementById('projInfo'); if(pi) pi.style.display='none';
+    toast('All data cleared','del');
+  });
+}
+
+function exportData() {
+  var data = {
+    version: 1,
+    exported: new Date().toISOString(),
+    projects: S.projects,
+    entries: S.entries,
+    settings: S.settings
+  };
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var date = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = 'StuntLog-Backup-' + date + '.json';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  toast('Backup saved — keep this file safe', 'ok');
+}
+
+function importData(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data.projects || !data.entries) {
+        toast('Invalid backup file', 'del');
+        return;
+      }
+      showConfirm(
+        'Import Backup?',
+        'This will <strong>replace all current data</strong> with the backup from ' + (data.exported ? data.exported.split('T')[0] : 'unknown date') + '.<br><br>Projects: ' + data.projects.length + ' &nbsp;·&nbsp; Entries: ' + data.entries.length,
+        'Yes, Import',
+        function() {
+          S.projects = data.projects || [];
+          S.entries  = data.entries  || [];
+          if (data.settings) S.settings = data.settings;
+          persist();
+          document.getElementById('sName').value  = S.settings.name  || '';
+          document.getElementById('sUnion').value = S.settings.union || '';
+          refreshDropdowns();
+          renderProjects();
+          updateHdr();
+          toast('Data restored — ' + S.entries.length + ' entries, ' + S.projects.length + ' projects', 'ok');
+        }
+      );
+    } catch(err) {
+      toast('Could not read backup file', 'del');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function exportApp() {
+  var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  var blob = new Blob([html], {type:'text/html'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href = url; a.download = 'StuntLog-TheStuntCollective.html'; a.style.display='none';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  toast('Downloading...','ok');
+}
+
+// ── INIT ───────────────────────────────────
+function init() {
+  loadData();
+  document.getElementById('sName').value  = S.settings.name  || '';
+  document.getElementById('sUnion').value = S.settings.union || '';
+  document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
+  // Build dropdowns
+  var travOpts = makeOpts(12);
+  document.getElementById('travTo').innerHTML = '<option value="0">Select duration</option>' + travOpts;
+  document.getElementById('travFr').innerHTML = '<option value="0">Select duration</option>' + travOpts;
+  document.getElementById('otHrs').innerHTML  = '<option value="0">No overtime</option>' + makeOpts(24);
+  refreshDropdowns();
+  renderProjects();
+  updateHdr();
+  setDT('shoot');
+  setPT('feature');
+  runCalc();
+  try {
+    if (!localStorage.getItem('stuntlog_welcomed')) document.getElementById('welEl').style.display = 'block';
+  } catch(e){}
+}
+
+init();
+
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js').catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
