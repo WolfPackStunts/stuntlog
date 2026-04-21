@@ -1445,12 +1445,47 @@ function saveProjectEdit(id) {
   if (!start) { toast('Please set a shoot start date','del'); return; }
   var idx = S.projects.findIndex(function(p){ return p.id===id; });
   if (idx === -1) return;
+  var oldRate = S.projects[idx].rate;
   S.projects[idx].title     = title;
   S.projects[idx].company   = document.getElementById('pCompany').value.trim();
   S.projects[idx].startDate = start;
   S.projects[idx].pic       = document.getElementById('pPIC').value.trim();
   S.projects[idx].email     = document.getElementById('pEmail').value.trim();
-  S.projects[idx].rate      = parseFloat(document.getElementById('pRate').value) || 0;
+  var newRate = parseFloat(document.getElementById('pRate').value) || 0;
+  S.projects[idx].rate      = newRate;
+
+  // If rate changed, recalculate all entries for this project
+  if (newRate !== oldRate && newRate > 0) {
+    var updated = 0;
+    S.entries.forEach(function(e) {
+      if (e.projectId !== id) return;
+      var dh = 12; // default feature
+      if (e.prodType === 'commercial') dh = 10;
+      if (e.prodType === 'custom' && e.custHrs) dh = e.custHrs;
+      var rate = e.halfDay ? newRate * 0.5 : newRate;
+      var hr = rate / dh;
+      // Recalc OT pay
+      var otS = e.otS || 0, otD = e.otD || 0;
+      var otPay = (otS * hr * 1.5) + (otD * hr * 2);
+      // Recalc travel pay
+      var billT = e.billableTravelHrs || Math.max(0, (e.travHrs||0) - (e.custTrav||0));
+      var tPay = (e.dayType==='shoot'||e.dayType==='rehearsal') ? hr * billT : 0;
+      // Recalc turnaround
+      var turnPay = e.turnHrs > 0 ? e.turnHrs * hr * 1.5 : 0;
+      var gross = rate + tPay + otPay + (e.stuntAdj||0) + (e.hireTot||0) + turnPay;
+      var total = gross - (e.sasaAmt||0);
+      e.rate    = rate;
+      e.fullRate = newRate;
+      e.hr      = hr;
+      e.otPay   = otPay;
+      e.travPay = tPay;
+      e.turnPay = turnPay;
+      e.gross   = gross;
+      e.total   = total;
+      updated++;
+    });
+    if (updated > 0) toast('Project updated — ' + updated + ' entr' + (updated===1?'y':'ies') + ' recalculated', 'ok');
+  }
   persist();
   refreshDropdowns();
   renderProjects();
